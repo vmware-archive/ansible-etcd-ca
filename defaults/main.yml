@@ -7,3 +7,4 @@ etcd_ca_depot: "/var/lib/etcd-ca/depot"
 etcd_ca_crt_group: None
 etcd_ca_run: "{{etcd_ca}} --depot-path {{etcd_ca_depot}}"
 etcd_ca_passphrase: ""
+local_certs: "certs"
