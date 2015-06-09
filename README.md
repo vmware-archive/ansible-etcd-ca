@@ -36,7 +36,6 @@ Example for bootstraping a SSL-protected etcd cluster with CoreOS
         - role: "sigma.etcd-cluster"
           etcd_ca_host: "localhost"
           etcd_ca_depot: "/tmp/etcd-ca-depot"
-          local_certs: "certs"
 
 License
 -------
