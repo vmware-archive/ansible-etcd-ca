@@ -1,0 +1,30 @@
+---
+- name: create certificate requests for hosts
+  shell: >
+    {{etcd_ca_run}} new-cert
+    --passphrase "{{hostvars[item].etcd_ca_host_passphrase | default('')}}"
+    --ip {{hostvars[item].etcd_ca_host_ip | default(hostvars[item].ansible_ssh_host)}}
+    {{item}}
+    creates={{etcd_ca_depot}}/{{item}}.host.csr
+  with_items: hosts
+
+- name: sign certificate requests for hosts
+  shell: >
+    {{etcd_ca_run}} sign
+    --passphrase "{{etcd_ca_passphrase}}"
+    {{item}}
+    creates={{etcd_ca_depot}}/{{item}}.host.crt
+  with_items: hosts
+
+- name: export insecure certificate
+  shell: >
+    {{etcd_ca_run}} export
+    --passphrase "{{hostvars[item].etcd_ca_host_passphrase | default('')}}"
+    --insecure
+    {{item}} > {{etcd_ca_depot}}/{{item}}.tar
+    creates={{etcd_ca_depot}}/{{item}}.tar
+  with_items: hosts
+
+- name: retrieve certificate
+  fetch: src={{etcd_ca_depot}}/{{item}}.tar dest={{local_certs}}
+  with_items: hosts

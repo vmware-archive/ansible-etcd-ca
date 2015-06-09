@@ -1,0 +1,9 @@
+---
+# defaults file for ansible-etcd-ca
+etcd_ca: "/usr/bin/etcd-ca"
+_etcd_ca_version: "v0.0.1-sigma"
+etcd_ca_url: "https://github.com/sigma/etcd-ca/releases/download/{{_etcd_ca_version}}/etcd-ca-{{_etcd_ca_version}}-{{ansible_system|lower}}-{{ 'amd64' if ansible_userspace_architecture == 'x86_64' else 'x86' }}.gz"
+etcd_ca_depot: "/var/lib/etcd-ca/depot"
+etcd_ca_crt_group: None
+etcd_ca_run: "{{etcd_ca}} --depot-path {{etcd_ca_depot}}"
+etcd_ca_passphrase: ""

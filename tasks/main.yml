@@ -1,0 +1,40 @@
+---
+# tasks file for ansible-etcd-ca
+- name: look for etcd-ca binary
+  stat: path={{etcd_ca}}
+  register: etcd_ca_file
+
+- name: allocate temp dir
+  shell: mktemp -d
+  register: etcd_ca_tempdir
+  when: not etcd_ca_file.stat.exists
+
+- name: download etcd-ca
+  get_url: url={{etcd_ca_url}} dest={{etcd_ca_tempdir.stdout}}
+  when: not etcd_ca_file.stat.exists
+  register: etcd_ca_dl
+
+- name: unzip etcd-ca
+  shell: gunzip -c {{etcd_ca_dl.dest}} > {{etcd_ca}} creates={{etcd_ca}}
+  when: not etcd_ca_file.stat.exists
+
+- name: remove temp dir
+  file: name={{etcd_ca_tempdir.stdout}} state=absent
+  when: not etcd_ca_file.stat.exists
+
+- name: make sure etcd-ca is executable
+  file: path={{etcd_ca}} mode=0755
+
+- name: make sure etcd-ca depot exists
+  file: path={{etcd_ca_depot}} mode=0755 state=directory
+
+- name: initialize depot
+  shell: >
+    {{etcd_ca_run}} init
+    --passphrase "{{etcd_ca_passphrase}}"
+    creates={{etcd_ca_depot}}/ca.key
+
+- name: retrieve ca.crt
+  fetch: src={{etcd_ca_depot}}/ca.crt dest={{local_certs}}
+
+- include: key.yml hosts={{groups[etcd_ca_crt_group] | default([])}}
